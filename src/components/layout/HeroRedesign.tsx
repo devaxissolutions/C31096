@@ -1,6 +1,7 @@
 import { Button } from '../ui/button';
 import { Shield, Award, Globe, ArrowRight, CheckCircle2, Factory, Users, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface HeroRedesignProps {
   onExploreProducts: () => void;
@@ -132,7 +133,7 @@ export function HeroRedesign({ onExploreProducts, onRequestSample }: HeroRedesig
           >
             {/* Main Image */}
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
-              <img
+              <ImageWithFallback
                 src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2000"
                 alt="Modern pharmaceutical manufacturing facility"
                 className="w-full h-full object-cover"
