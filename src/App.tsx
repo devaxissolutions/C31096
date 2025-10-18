@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Header, Footer, ProductPreviewDrawer, SampleRequestModal, PVFormModal, PVFloatingButton, Toaster } from './components';
 
 // Pages
-import { HomePage, ProductsPage, RDPage, CompanyPage, ManufacturingPage, ResourcesPage, InvestorsPage, LeadershipPage, CareersPage, ContactPage, PrivacyPolicyPage, TermsOfUsePage, CookiePolicyPage, QualityCompliancePage, DistributorPortalPage } from './pages';
+import { HomePage, ProductsPage, RDPage, CompanyPage, AboutUsPage, GalleryPage, ManufacturingPage, ResourcesPage, InvestorsPage, LeadershipPage, CareersPage, ContactPage, PrivacyPolicyPage, TermsOfUsePage, CookiePolicyPage, QualityCompliancePage, DistributorPortalPage } from './pages';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -46,6 +46,10 @@ export default function App() {
         return <RDPage />;
       case 'company':
         return <CompanyPage />;
+      case 'about':
+        return <AboutUsPage />;
+      case 'gallery':
+        return <GalleryPage />;
       case 'manufacturing':
         return <ManufacturingPage />;
       case 'resources':
@@ -76,6 +80,7 @@ export default function App() {
             onViewAllProducts={handleViewAllProducts}
             onRequestSample={() => setIsSampleModalOpen(true)}
             onExploreProducts={handleExploreProducts}
+            onViewGallery={() => handleNavigate('gallery')}
           />
         );
     }

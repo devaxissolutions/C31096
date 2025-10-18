@@ -122,9 +122,9 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
       {
         heading: 'ABOUT',
         items: [
-          { title: 'Overview', description: 'Our story', page: 'company', icon: Building2 },
+          { title: 'About Us', description: 'Our story', page: 'about', icon: Building2 },
           { title: 'Mission & Values', description: 'What drives us', page: 'company', icon: Heart },
-          { title: 'Gallery', description: 'Visual showcase', page: 'home', icon: ImageIcon },
+          { title: 'Gallery', description: 'Visual showcase', page: 'gallery', icon: ImageIcon },
         ]
       },
       {
@@ -139,6 +139,13 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
         items: [
           { title: 'Global Presence', description: 'Worldwide reach', page: 'company', icon: Globe },
           { title: 'CSR', description: 'Social responsibility', page: 'company', icon: Heart },
+        ]
+      },
+      {
+        heading: 'CAREERS',
+        items: [
+          { title: 'Join Our Team', description: 'Career opportunities', page: 'careers', icon: Briefcase },
+          { title: 'Life at EDIF', description: 'Culture & values', page: 'careers', icon: Heart },
         ]
       }
     ],
@@ -187,28 +194,6 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
         ]
       }
     ],
-    Careers: [
-      {
-        heading: 'JOIN US',
-        items: [
-          { title: 'Life at EDIF', description: 'Culture & values', page: 'careers', icon: Heart },
-          { title: 'Openings', description: 'View positions', page: 'careers', icon: Briefcase },
-        ]
-      },
-      {
-        heading: 'PROGRAMS',
-        items: [
-          { title: 'Internships', description: 'Student programs', page: 'careers', icon: Users },
-          { title: 'Graduates', description: 'Early career', page: 'careers', icon: Award },
-        ]
-      },
-      {
-        heading: 'APPLY',
-        items: [
-          { title: 'Apply Online', description: 'Submit application', page: 'careers', icon: FileText },
-        ]
-      }
-    ],
     Contact: [
       {
         heading: 'GET IN TOUCH',
@@ -234,7 +219,6 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
     { name: 'Company', hasMegaMenu: true, page: 'company' },
     { name: 'Resources', hasMegaMenu: true, page: 'resources' },
     { name: 'Investors', hasMegaMenu: true, page: 'investors' },
-    { name: 'Careers', hasMegaMenu: true, page: 'careers' },
     { name: 'Contact', hasMegaMenu: true, page: 'contact' },
   ];
 
@@ -337,17 +321,6 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
 
           {/* Utility Bar */}
           <div className="hidden xl:flex items-center gap-2 flex-shrink-0">
-            {/* HCP Login */}
-            <button
-              onClick={() => handleNavClick('resources')}
-              className="flex items-center gap-1.5 px-3 py-2 text-[12px] text-[var(--text-900)] opacity-70 hover:opacity-100 transition-opacity duration-150 font-medium"
-            >
-              <User size={14} strokeWidth={2} />
-              <span>HCP Login</span>
-            </button>
-
-            <div className="w-px h-4 bg-[var(--border-color)]" />
-
             {/* Language */}
             <button className="flex items-center gap-1 px-2 py-2 text-[12px] text-[var(--text-900)] opacity-70 hover:opacity-100 transition-opacity duration-150">
               <Globe size={14} strokeWidth={2} />
@@ -458,16 +431,6 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
               </div>
             ))}
 
-            {/* Mobile Utility */}
-            <div className="pt-4 space-y-2 border-t border-[var(--border-color)] mt-4">
-              <button
-                onClick={() => handleNavClick('resources')}
-                className="flex items-center gap-2 w-full px-3 py-3 text-[13px] text-[var(--text-900)] font-medium hover:bg-[var(--surface)] rounded transition-colors duration-150"
-              >
-                <User size={16} strokeWidth={2} />
-                <span>HCP / Distributor Login</span>
-              </button>
-            </div>
           </nav>
         </div>
       )}

@@ -7,7 +7,7 @@ import { ManufacturingSnapshot } from '../components/common/ManufacturingSnapsho
 import { GlobalPresence } from '../components/common/GlobalPresence';
 import { CertificationsShowcase } from '../components/common/CertificationsShowcase';
 import { TestimonialsSection } from '../components/common/TestimonialsSection';
-import { Gallery } from '../components/common/Gallery';
+import { GalleryCarousel } from '../components/common/GalleryCarousel';
 import { NewsSection } from '../components/common/NewsSection';
 import { CTASection } from '../components/common/CTASection';
 
@@ -16,13 +16,15 @@ interface HomePageProps {
   onViewAllProducts: () => void;
   onRequestSample: () => void;
   onExploreProducts: () => void;
+  onViewGallery: () => void;
 }
 
-export function HomePage({ 
-  onProductClick, 
-  onViewAllProducts, 
+export function HomePage({
+  onProductClick,
+  onViewAllProducts,
   onRequestSample,
-  onExploreProducts 
+  onExploreProducts,
+  onViewGallery
 }: HomePageProps) {
   return (
     <>
@@ -62,8 +64,8 @@ export function HomePage({
       {/* News Section */}
       <NewsSection />
 
-      {/* Gallery */}
-      <Gallery />
+      {/* Gallery Carousel */}
+      <GalleryCarousel onViewFullGallery={onViewGallery} />
 
       {/* CTA Section */}
       <CTASection onRequestSample={onRequestSample} />

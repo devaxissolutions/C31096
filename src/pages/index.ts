@@ -3,6 +3,8 @@ export { HomePage } from './HomePage';
 export { ProductsPage } from './ProductsPage';
 export { RDPage } from './RDPage';
 export { CompanyPage } from './CompanyPage';
+export { AboutUsPage } from './AboutUsPage';
+export { GalleryPage } from './GalleryPage';
 export { ManufacturingPage } from './ManufacturingPage';
 export { ResourcesPage } from './ResourcesPage';
 export { InvestorsPage } from './InvestorsPage';

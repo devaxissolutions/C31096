@@ -1,6 +1,7 @@
 import { Button } from '../ui/button';
 import { Shield, Award, Globe, ArrowRight, CheckCircle2, Factory, Users, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface HeroRedesignProps {
   onExploreProducts: () => void;
@@ -131,9 +132,12 @@ export function HeroRedesign({ onExploreProducts, onRequestSample }: HeroRedesig
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             {/* Main Image */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-cover bg-center bg-blue-500" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%230066cc'/%3E%3Ctext x='400' y='300' text-anchor='middle' fill='white' font-size='24' font-family='Arial'%3EPharmaceutical Manufacturing%3C/text%3E%3C/svg%3E")`
-            }}>
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2000"
+                alt="Modern pharmaceutical manufacturing facility"
+                className="w-full h-full object-cover"
+              />
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-tr from-[var(--brand-blue)]/20 to-transparent" />
             </div>

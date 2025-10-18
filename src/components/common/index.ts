@@ -4,6 +4,7 @@ export { CTASection } from './CTASection';
 export { CertificationsShowcase } from './CertificationsShowcase';
 export { Facilities } from './Facilities';
 export { Gallery } from './Gallery';
+export { GalleryCarousel } from './GalleryCarousel';
 export { GlobalPresence } from './GlobalPresence';
 export { HCPResources } from './HCPResources';
 export { InvestorsSection } from './InvestorsSection';
