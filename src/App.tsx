@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Header, Footer, ProductPreviewDrawer, SampleRequestModal, PVFormModal, PVFloatingButton, Toaster } from './components';
 
 // Pages
-import { HomePage, ProductsPage, RDPage, CompanyPage, AboutUsPage, GalleryPage, ManufacturingPage, ResourcesPage, InvestorsPage, LeadershipPage, CareersPage, ContactPage, PrivacyPolicyPage, TermsOfUsePage, CookiePolicyPage, QualityCompliancePage, DistributorPortalPage } from './pages';
+import { HomePage, ProductsPage, RDPage, CompanyPage, AboutUsPage, GalleryPage, ManufacturingPage, ResourcesPage, InvestorsPage, LeadershipPage, CareersPage, ContactUsPage, MediaPage, ReportAEPage, PrivacyPolicyPage, TermsOfUsePage, CookiePolicyPage, QualityCompliancePage, DistributorPortalPage, InvestorRelationsPage, ReportsPage, FilingsPage, InvestorNewsPage, GovernancePage, HCPPortalPage, MonographsPage, PatientInfoPage, SafetyInfoPage, RegulatoryPage, SDSPage, MissionValuesPage, ExecutiveTeamPage, BoardPage, JoinOurTeamPage, LifeAtEDIFPage, GlobalPresencePage, CSRPage } from './pages';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -61,7 +61,13 @@ export default function App() {
       case 'careers':
         return <CareersPage />;
       case 'contact':
-        return <ContactPage />;
+        return <ContactUsPage />;
+      case 'contact-us':
+        return <ContactUsPage />;
+      case 'media':
+        return <MediaPage />;
+      case 'report-ae':
+        return <ReportAEPage />;
       case 'privacy':
         return <PrivacyPolicyPage />;
       case 'terms':
@@ -72,6 +78,42 @@ export default function App() {
         return <QualityCompliancePage />;
       case 'distributors':
         return <DistributorPortalPage />;
+      case 'investor-relations':
+        return <InvestorRelationsPage />;
+      case 'reports':
+        return <ReportsPage />;
+      case 'filings':
+        return <FilingsPage />;
+      case 'investor-news':
+        return <InvestorNewsPage />;
+      case 'governance':
+        return <GovernancePage />;
+      case 'hcp-portal':
+        return <HCPPortalPage />;
+      case 'monographs':
+        return <MonographsPage />;
+      case 'patient-info':
+        return <PatientInfoPage />;
+      case 'safety-info':
+        return <SafetyInfoPage />;
+      case 'regulatory':
+        return <RegulatoryPage />;
+      case 'sds':
+        return <SDSPage />;
+      case 'mission-values':
+        return <MissionValuesPage />;
+      case 'executive-team':
+        return <ExecutiveTeamPage />;
+      case 'board':
+        return <BoardPage />;
+      case 'join-our-team':
+        return <JoinOurTeamPage />;
+      case 'life-at-edif':
+        return <LifeAtEDIFPage />;
+      case 'global-presence':
+        return <GlobalPresencePage />;
+      case 'csr':
+        return <CSRPage />;
       case 'home':
       default:
         return (
