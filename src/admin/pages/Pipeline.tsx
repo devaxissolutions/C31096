@@ -21,7 +21,7 @@ const pipelineStages = [
 const pipelineItems = [
   {
     id: '1',
-    name: 'EDIF-2024-001',
+    name: 'PC-2024-001',
     description: 'Novel cardiovascular compound',
     stage: 'discovery',
     progress: 25,
@@ -32,7 +32,7 @@ const pipelineItems = [
   },
   {
     id: '2',
-    name: 'EDIF-2024-002',
+    name: 'PC-2024-002',
     description: 'Neurological treatment innovation',
     stage: 'preclinical',
     progress: 60,
@@ -43,7 +43,7 @@ const pipelineItems = [
   },
   {
     id: '3',
-    name: 'EDIF-2023-005',
+    name: 'PC-2023-005',
     description: 'Oncology breakthrough therapy',
     stage: 'clinical',
     progress: 80,
@@ -91,7 +91,7 @@ export default function Pipeline() {
                 <Label htmlFor="pipeline-name" className="text-right">
                   Name
                 </Label>
-                <Input id="pipeline-name" placeholder="EDIF-2024-XXX" className="col-span-3" />
+                <Input id="pipeline-name" placeholder="PC-2024-XXX" className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="pipeline-stage" className="text-right">
