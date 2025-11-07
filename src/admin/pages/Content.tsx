@@ -86,7 +86,7 @@ function HeroContent() {
             <Label htmlFor="hero-subtitle">Subtitle</Label>
             <Textarea
               id="hero-subtitle"
-              defaultValue="EDIF Pharma is committed to developing breakthrough treatments that improve patient outcomes and advance medical science."
+              defaultValue="PharmaCorp is committed to developing breakthrough treatments that improve patient outcomes and advance medical science."
               className="mt-1"
               rows={3}
             />
