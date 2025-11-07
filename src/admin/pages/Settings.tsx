@@ -42,7 +42,7 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="company-name">Company Name</Label>
-                  <Input id="company-name" defaultValue="EDIF Pharma" />
+                  <Input id="company-name" defaultValue="PharmaCorp" />
                 </div>
                 <div>
                   <Label htmlFor="company-tagline">Tagline</Label>
@@ -53,7 +53,7 @@ export default function Settings() {
                 <Label htmlFor="company-description">Company Description</Label>
                 <Textarea
                   id="company-description"
-                  defaultValue="EDIF Pharma is committed to developing breakthrough treatments that improve patient outcomes and advance medical science."
+                  defaultValue="PharmaCorp is committed to developing breakthrough treatments that improve patient outcomes and advance medical science."
                   rows={3}
                 />
               </div>
@@ -112,7 +112,7 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="meta-title">Default Meta Title</Label>
-                <Input id="meta-title" defaultValue="EDIF Pharma - Advancing Healthcare Innovation" />
+                <Input id="meta-title" defaultValue="PharmaCorp - Advancing Healthcare Innovation" />
               </div>
               <div>
                 <Label htmlFor="meta-description">Default Meta Description</Label>
@@ -133,7 +133,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <Label htmlFor="twitter-handle">Twitter Handle</Label>
-                  <Input id="twitter-handle" defaultValue="@EDIFPharma" />
+                  <Input id="twitter-handle" defaultValue="@PharmaCorp" />
                 </div>
               </div>
             </CardContent>
@@ -159,7 +159,7 @@ export default function Settings() {
                   defaultValue={`User-agent: *
 Allow: /
 
-Sitemap: https://www.edifpharma.com/sitemap.xml`}
+Sitemap: https://www.pharmacorp.com/sitemap.xml`}
                   rows={6}
                 />
               </div>
@@ -177,7 +177,7 @@ Sitemap: https://www.edifpharma.com/sitemap.xml`}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="contact-email">Primary Email</Label>
-                  <Input id="contact-email" type="email" defaultValue="info@edifpharma.com" />
+                  <Input id="contact-email" type="email" defaultValue="info@pharmacorp.com" />
                 </div>
                 <div>
                   <Label htmlFor="contact-phone">Phone Number</Label>
@@ -217,21 +217,21 @@ United States"
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="linkedin">LinkedIn</Label>
-                  <Input id="linkedin" defaultValue="https://linkedin.com/company/edif-pharma" />
+                  <Input id="linkedin" defaultValue="https://linkedin.com/company/pharma-corp" />
                 </div>
                 <div>
                   <Label htmlFor="twitter">Twitter</Label>
-                  <Input id="twitter" defaultValue="https://twitter.com/EDIFPharma" />
+                  <Input id="twitter" defaultValue="https://twitter.com/PharmaCorp" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="facebook">Facebook</Label>
-                  <Input id="facebook" defaultValue="https://facebook.com/EDIFPharma" />
+                  <Input id="facebook" defaultValue="https://facebook.com/PharmaCorp" />
                 </div>
                 <div>
                   <Label htmlFor="youtube">YouTube</Label>
-                  <Input id="youtube" defaultValue="https://youtube.com/@EDIFPharma" />
+                  <Input id="youtube" defaultValue="https://youtube.com/@PharmaCorp" />
                 </div>
               </div>
             </CardContent>
