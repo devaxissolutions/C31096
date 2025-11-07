@@ -145,7 +145,7 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
         heading: 'CAREERS',
         items: [
           { title: 'Join Our Team', description: 'Career opportunities', page: 'join-our-team', icon: Briefcase },
-          { title: 'Life at EDIF', description: 'Culture & values', page: 'life-at-edif', icon: Heart },
+          { title: 'Life at PharmaCorp', description: 'Culture & values', page: 'life-at-pharma-corp', icon: Heart },
         ]
       }
     ],
@@ -231,7 +231,7 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
           <button 
             onClick={() => handleNavClick('home')} 
             className="flex items-center flex-shrink-0 group" 
-            aria-label="EDIF Pharma home"
+            aria-label="PharmaCorp home"
           >
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-0.5">
@@ -241,7 +241,7 @@ export function Header({ onReportAdverseEvent, currentPage = 'home', onNavigate 
               </div>
               <div className="flex flex-col">
                 <span className="text-lg tracking-tight text-[var(--text-900)] font-medium">
-                  EDIF Pharma
+                  PharmaCorp
                 </span>
                 <span className="text-[9px] tracking-[0.08em] text-[var(--text-900)] opacity-40 uppercase">
                   Medical Systems
