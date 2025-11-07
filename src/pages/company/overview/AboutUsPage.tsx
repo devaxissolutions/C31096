@@ -37,7 +37,7 @@ export function AboutUsPage() {
   ];
 
   const milestones = [
-    { year: '1998', title: 'Foundation', description: 'EDIF Pharma established with a vision to improve global healthcare' },
+    { year: '1998', title: 'Foundation', description: 'PharmaCorp established with a vision to improve global healthcare' },
     { year: '2005', title: 'WHO-GMP Certified', description: 'First facility receives WHO-GMP certification' },
     { year: '2012', title: 'Global Expansion', description: 'Extended reach to 25+ countries across continents' },
     { year: '2018', title: 'R&D Center', description: 'Opened state-of-the-art research and development facility' },
@@ -79,7 +79,7 @@ export function AboutUsPage() {
               <span className="text-sm text-[var(--brand-blue)]">Our Story</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl text-[var(--brand-blue)] mb-6">
-              About EDIF Pharma
+              About PharmaCorp
             </h1>
             <p className="text-xl text-[var(--text-900)] opacity-70 max-w-3xl mx-auto leading-relaxed">
               For over 25 years, we've been dedicated to improving lives through quality pharmaceutical
@@ -121,7 +121,7 @@ export function AboutUsPage() {
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2000"
-                alt="EDIF Pharma facility"
+                alt="PharmaCorp facility"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -219,7 +219,7 @@ export function AboutUsPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl mb-4">EDIF Pharma by the Numbers</h2>
+            <h2 className="text-3xl md:text-4xl mb-4">PharmaCorp by the Numbers</h2>
             <p className="text-lg text-white/80 max-w-2xl mx-auto">
               Our impact in global healthcare
             </p>

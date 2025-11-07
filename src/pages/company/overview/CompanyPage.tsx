@@ -53,7 +53,7 @@ export function CompanyPage() {
               <span className="text-sm text-white">Company Information</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-6">
-              About EDIF Pharma
+              About PharmaCorp
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
               A trusted pharmaceutical leader committed to improving global healthcare through 
