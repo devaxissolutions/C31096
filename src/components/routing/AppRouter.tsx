@@ -1,6 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { PageLayout } from '../layout/PageLayout';
+import { AdminRouter } from '../../admin/components/AdminRouter';
+import { ThemeProvider } from '../../admin/lib/theme-provider';
+import { AuthProvider } from '../../admin/hooks/use-auth';
 import { ROUTES } from '../../config/routes';
 
 // Lazy load all page components for better performance
@@ -127,112 +130,132 @@ export function AppRouter() {
   };
 
   return (
-    <PageLayout
-      currentPath={location.pathname}
-      onReportAdverseEvent={handleReportAdverseEvent}
-      onNavigate={handleNavigate}
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
     >
-      <Suspense fallback={<PageLoader />}>
+      <AuthProvider>
         <Routes>
-          {/* Home Page */}
+          {/* Admin routes - no layout */}
+          <Route path="/admin/*" element={<AdminRouter />} />
+
+          {/* Main app routes with layout */}
           <Route
-            path={ROUTES.HOME}
+            path="/*"
             element={
-              <HomePage
-                onProductClick={handleProductClick}
-                onViewAllProducts={handleViewAllProducts}
-                onRequestSample={handleRequestSample}
-                onExploreProducts={handleExploreProducts}
-                onViewGallery={handleViewGallery}
-              />
+              <PageLayout
+                currentPath={location.pathname}
+                onReportAdverseEvent={handleReportAdverseEvent}
+                onNavigate={handleNavigate}
+              >
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    {/* Home Page */}
+                    <Route
+                      path={ROUTES.HOME}
+                      element={
+                        <HomePage
+                          onProductClick={handleProductClick}
+                          onViewAllProducts={handleViewAllProducts}
+                          onRequestSample={handleRequestSample}
+                          onExploreProducts={handleExploreProducts}
+                          onViewGallery={handleViewGallery}
+                        />
+                      }
+                    />
+
+                    {/* Products Section */}
+                    <Route path={ROUTES.PRODUCTS_BROWSE.ALL_PRODUCTS} element={<AllProductsPage />} />
+                    <Route path={ROUTES.PRODUCTS_BROWSE.PRODUCT_CATALOG} element={<ProductCatalogPage />} />
+                    <Route path={ROUTES.PRODUCTS_THERAPEUTIC.CARDIOLOGY} element={<CardiologyPage />} />
+                    <Route path={ROUTES.PRODUCTS_THERAPEUTIC.ANTI_DIABETIC} element={<AntiDiabeticPage />} />
+                    <Route path={ROUTES.PRODUCTS_THERAPEUTIC.ANTIBIOTICS} element={<AntibioticsPage />} />
+                    <Route path={ROUTES.PRODUCTS_THERAPEUTIC.PAIN_MANAGEMENT} element={<PainManagementPage />} />
+                    <Route path={ROUTES.PRODUCTS_PIPELINE.RD_PIPELINE} element={<RDPPipelinePage />} />
+                    <Route path={ROUTES.PRODUCTS_PIPELINE.CLINICAL_TRIALS_PRODUCTS} element={<ClinicalTrialsPageProducts />} />
+                    <Route path={ROUTES.PRODUCTS_ACTIONS.REQUEST_SAMPLE} element={<RequestSamplePage />} />
+                    <Route
+                      path={ROUTES.PRODUCTS}
+                      element={
+                        <ProductsPage
+                          onProductClick={handleProductClick}
+                          onViewAllProducts={handleViewAllProducts}
+                        />
+                      }
+                    />
+
+                    {/* R&D Section */}
+                    <Route path={ROUTES.RD_OVERVIEW.RESEARCH_FOCUS} element={<ResearchFocusPage />} />
+                    <Route path={ROUTES.RD_OVERVIEW.INNOVATION} element={<InnovationPage />} />
+                    <Route path={ROUTES.RD_DEVELOPMENT.CLINICAL_TRIALS} element={<ClinicalTrialsPage />} />
+                    <Route path={ROUTES.RD_DEVELOPMENT.DATA_INTEGRITY} element={<DataIntegrityPage />} />
+                    <Route path={ROUTES.RD_COLLABORATION.PARTNERSHIPS} element={<PartnershipsPage />} />
+                    <Route path={ROUTES.RD_COLLABORATION.TECHNOLOGY} element={<TechnologyPage />} />
+                    <Route path={ROUTES.RD} element={<RDPage />} />
+
+                    {/* Facilities Section */}
+                    <Route path={ROUTES.FACILITIES_INFRASTRUCTURE.MANUFACTURING} element={<ManufacturingPage />} />
+                    <Route path={ROUTES.FACILITIES_INFRASTRUCTURE.WHO_GMP} element={<WhoGmpPage />} />
+                    <Route path={ROUTES.FACILITIES_QUALITY.QUALITY_ASSURANCE} element={<QualityAssurancePage />} />
+                    <Route path={ROUTES.FACILITIES_QUALITY.CERTIFICATIONS} element={<CertificationsPage />} />
+                    <Route path={ROUTES.FACILITIES_QUALITY.QUALITY_COMPLIANCE} element={<QualityCompliancePage />} />
+                    <Route path={ROUTES.FACILITIES_SUSTAINABILITY.GREEN_PRACTICES} element={<GreenPracticesPage />} />
+                    <Route path={ROUTES.FACILITIES} element={<ManufacturingPage />} />
+
+                    {/* Company Section */}
+                    <Route path={ROUTES.COMPANY_OVERVIEW.ABOUT_US} element={<AboutUsPage />} />
+                    <Route path={ROUTES.COMPANY_OVERVIEW.MISSION_VALUES} element={<MissionValuesPage />} />
+                    <Route path={ROUTES.COMPANY_OVERVIEW.GALLERY} element={<GalleryPage />} />
+                    <Route path={ROUTES.COMPANY_LEADERSHIP.LEADERSHIP} element={<LeadershipPage />} />
+                    <Route path={ROUTES.COMPANY_LEADERSHIP.EXECUTIVE_TEAM} element={<ExecutiveTeamPage />} />
+                    <Route path={ROUTES.COMPANY_LEADERSHIP.BOARD} element={<BoardPage />} />
+                    <Route path={ROUTES.COMPANY_GLOBAL.GLOBAL_PRESENCE} element={<GlobalPresencePage />} />
+                    <Route path={ROUTES.COMPANY_GLOBAL.CSR} element={<CSRPage />} />
+                    <Route path={ROUTES.COMPANY_CAREERS.CAREERS} element={<CareersPage />} />
+                    <Route path={ROUTES.COMPANY_CAREERS.JOIN_OUR_TEAM} element={<JoinOurTeamPage />} />
+                    <Route path={ROUTES.COMPANY_CAREERS.LIFE_AT_EDIF} element={<LifeAtEDIFPage />} />
+                    <Route path={ROUTES.COMPANY} element={<CompanyPage />} />
+
+                    {/* Resources Section */}
+                    <Route path={ROUTES.RESOURCES_PROFESSIONALS.HCP_PORTAL} element={<HCPPortalPage />} />
+                    <Route path={ROUTES.RESOURCES_PROFESSIONALS.MONOGRAPHS} element={<MonographsPage />} />
+                    <Route path={ROUTES.RESOURCES_PATIENTS.PATIENT_INFO} element={<PatientInfoPage />} />
+                    <Route path={ROUTES.RESOURCES_PATIENTS.SAFETY_INFO} element={<SafetyInfoPage />} />
+                    <Route path={ROUTES.RESOURCES_DOCUMENTS.REGULATORY} element={<RegulatoryPage />} />
+                    <Route path={ROUTES.RESOURCES_DOCUMENTS.SDS} element={<SDSPage />} />
+                    <Route path={ROUTES.RESOURCES} element={<ResourcesPage />} />
+
+                    {/* Investors Section */}
+                    <Route path={ROUTES.INVESTORS_OVERVIEW.INVESTOR_RELATIONS} element={<InvestorRelationsPage />} />
+                    <Route path={ROUTES.INVESTORS_FINANCIALS.REPORTS} element={<ReportsPage />} />
+                    <Route path={ROUTES.INVESTORS_FINANCIALS.FILINGS} element={<FilingsPage />} />
+                    <Route path={ROUTES.INVESTORS_CORPORATE.NEWS} element={<InvestorNewsPage />} />
+                    <Route path={ROUTES.INVESTORS_CORPORATE.GOVERNANCE} element={<GovernancePage />} />
+                    <Route path={ROUTES.INVESTORS} element={<InvestorsPage />} />
+
+                    {/* Contact Section */}
+                    <Route path={ROUTES.CONTACT_TOUCH.CONTACT_US} element={<ContactUsPage />} />
+                    <Route path={ROUTES.CONTACT_TOUCH.DISTRIBUTORS} element={<DistributorPortalPage />} />
+                    <Route path={ROUTES.CONTACT_SUPPORT.MEDIA} element={<MediaPage />} />
+                    <Route path={ROUTES.CONTACT_SUPPORT.REPORT_AE} element={<ReportAEPage />} />
+                    <Route path={ROUTES.CONTACT} element={<ContactUsPage />} />
+
+                    {/* Legal Section */}
+                    <Route path={ROUTES.LEGAL.PRIVACY_POLICY} element={<PrivacyPolicyPage />} />
+                    <Route path={ROUTES.LEGAL.TERMS_OF_USE} element={<TermsOfUsePage />} />
+                    <Route path={ROUTES.LEGAL.COOKIE_POLICY} element={<CookiePolicyPage />} />
+
+                    {/* 404 Not Found */}
+                    <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage onNavigate={handleNavigate} />} />
+                  </Routes>
+                </Suspense>
+              </PageLayout>
             }
           />
-
-          {/* Products Section */}
-          <Route path={ROUTES.PRODUCTS_BROWSE.ALL_PRODUCTS} element={<AllProductsPage />} />
-          <Route path={ROUTES.PRODUCTS_BROWSE.PRODUCT_CATALOG} element={<ProductCatalogPage />} />
-          <Route path={ROUTES.PRODUCTS_THERAPEUTIC.CARDIOLOGY} element={<CardiologyPage />} />
-          <Route path={ROUTES.PRODUCTS_THERAPEUTIC.ANTI_DIABETIC} element={<AntiDiabeticPage />} />
-          <Route path={ROUTES.PRODUCTS_THERAPEUTIC.ANTIBIOTICS} element={<AntibioticsPage />} />
-          <Route path={ROUTES.PRODUCTS_THERAPEUTIC.PAIN_MANAGEMENT} element={<PainManagementPage />} />
-          <Route path={ROUTES.PRODUCTS_PIPELINE.RD_PIPELINE} element={<RDPPipelinePage />} />
-          <Route path={ROUTES.PRODUCTS_PIPELINE.CLINICAL_TRIALS_PRODUCTS} element={<ClinicalTrialsPageProducts />} />
-          <Route path={ROUTES.PRODUCTS_ACTIONS.REQUEST_SAMPLE} element={<RequestSamplePage />} />
-          <Route
-            path={ROUTES.PRODUCTS}
-            element={
-              <ProductsPage
-                onProductClick={handleProductClick}
-                onViewAllProducts={handleViewAllProducts}
-              />
-            }
-          />
-
-          {/* R&D Section */}
-          <Route path={ROUTES.RD_OVERVIEW.RESEARCH_FOCUS} element={<ResearchFocusPage />} />
-          <Route path={ROUTES.RD_OVERVIEW.INNOVATION} element={<InnovationPage />} />
-          <Route path={ROUTES.RD_DEVELOPMENT.CLINICAL_TRIALS} element={<ClinicalTrialsPage />} />
-          <Route path={ROUTES.RD_DEVELOPMENT.DATA_INTEGRITY} element={<DataIntegrityPage />} />
-          <Route path={ROUTES.RD_COLLABORATION.PARTNERSHIPS} element={<PartnershipsPage />} />
-          <Route path={ROUTES.RD_COLLABORATION.TECHNOLOGY} element={<TechnologyPage />} />
-          <Route path={ROUTES.RD} element={<RDPage />} />
-
-          {/* Facilities Section */}
-          <Route path={ROUTES.FACILITIES_INFRASTRUCTURE.MANUFACTURING} element={<ManufacturingPage />} />
-          <Route path={ROUTES.FACILITIES_INFRASTRUCTURE.WHO_GMP} element={<WhoGmpPage />} />
-          <Route path={ROUTES.FACILITIES_QUALITY.QUALITY_ASSURANCE} element={<QualityAssurancePage />} />
-          <Route path={ROUTES.FACILITIES_QUALITY.CERTIFICATIONS} element={<CertificationsPage />} />
-          <Route path={ROUTES.FACILITIES_QUALITY.QUALITY_COMPLIANCE} element={<QualityCompliancePage />} />
-          <Route path={ROUTES.FACILITIES_SUSTAINABILITY.GREEN_PRACTICES} element={<GreenPracticesPage />} />
-          <Route path={ROUTES.FACILITIES} element={<ManufacturingPage />} />
-
-          {/* Company Section */}
-          <Route path={ROUTES.COMPANY_OVERVIEW.ABOUT_US} element={<AboutUsPage />} />
-          <Route path={ROUTES.COMPANY_OVERVIEW.MISSION_VALUES} element={<MissionValuesPage />} />
-          <Route path={ROUTES.COMPANY_OVERVIEW.GALLERY} element={<GalleryPage />} />
-          <Route path={ROUTES.COMPANY_LEADERSHIP.LEADERSHIP} element={<LeadershipPage />} />
-          <Route path={ROUTES.COMPANY_LEADERSHIP.EXECUTIVE_TEAM} element={<ExecutiveTeamPage />} />
-          <Route path={ROUTES.COMPANY_LEADERSHIP.BOARD} element={<BoardPage />} />
-          <Route path={ROUTES.COMPANY_GLOBAL.GLOBAL_PRESENCE} element={<GlobalPresencePage />} />
-          <Route path={ROUTES.COMPANY_GLOBAL.CSR} element={<CSRPage />} />
-          <Route path={ROUTES.COMPANY_CAREERS.CAREERS} element={<CareersPage />} />
-          <Route path={ROUTES.COMPANY_CAREERS.JOIN_OUR_TEAM} element={<JoinOurTeamPage />} />
-          <Route path={ROUTES.COMPANY_CAREERS.LIFE_AT_EDIF} element={<LifeAtEDIFPage />} />
-          <Route path={ROUTES.COMPANY} element={<CompanyPage />} />
-
-          {/* Resources Section */}
-          <Route path={ROUTES.RESOURCES_PROFESSIONALS.HCP_PORTAL} element={<HCPPortalPage />} />
-          <Route path={ROUTES.RESOURCES_PROFESSIONALS.MONOGRAPHS} element={<MonographsPage />} />
-          <Route path={ROUTES.RESOURCES_PATIENTS.PATIENT_INFO} element={<PatientInfoPage />} />
-          <Route path={ROUTES.RESOURCES_PATIENTS.SAFETY_INFO} element={<SafetyInfoPage />} />
-          <Route path={ROUTES.RESOURCES_DOCUMENTS.REGULATORY} element={<RegulatoryPage />} />
-          <Route path={ROUTES.RESOURCES_DOCUMENTS.SDS} element={<SDSPage />} />
-          <Route path={ROUTES.RESOURCES} element={<ResourcesPage />} />
-
-          {/* Investors Section */}
-          <Route path={ROUTES.INVESTORS_OVERVIEW.INVESTOR_RELATIONS} element={<InvestorRelationsPage />} />
-          <Route path={ROUTES.INVESTORS_FINANCIALS.REPORTS} element={<ReportsPage />} />
-          <Route path={ROUTES.INVESTORS_FINANCIALS.FILINGS} element={<FilingsPage />} />
-          <Route path={ROUTES.INVESTORS_CORPORATE.NEWS} element={<InvestorNewsPage />} />
-          <Route path={ROUTES.INVESTORS_CORPORATE.GOVERNANCE} element={<GovernancePage />} />
-          <Route path={ROUTES.INVESTORS} element={<InvestorsPage />} />
-
-          {/* Contact Section */}
-          <Route path={ROUTES.CONTACT_TOUCH.CONTACT_US} element={<ContactUsPage />} />
-          <Route path={ROUTES.CONTACT_TOUCH.DISTRIBUTORS} element={<DistributorPortalPage />} />
-          <Route path={ROUTES.CONTACT_SUPPORT.MEDIA} element={<MediaPage />} />
-          <Route path={ROUTES.CONTACT_SUPPORT.REPORT_AE} element={<ReportAEPage />} />
-          <Route path={ROUTES.CONTACT} element={<ContactUsPage />} />
-
-          {/* Legal Section */}
-          <Route path={ROUTES.LEGAL.PRIVACY_POLICY} element={<PrivacyPolicyPage />} />
-          <Route path={ROUTES.LEGAL.TERMS_OF_USE} element={<TermsOfUsePage />} />
-          <Route path={ROUTES.LEGAL.COOKIE_POLICY} element={<CookiePolicyPage />} />
-
-          {/* 404 Not Found */}
-          <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage onNavigate={handleNavigate} />} />
         </Routes>
-      </Suspense>
-    </PageLayout>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -1,0 +1,53 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidUser() {
+      return isAuthenticated() && request.auth.token.email_verified == true;
+    }
+
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+
+    // Products images
+    match /products/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAuthenticated() && isValidUser() && isValidImage();
+      allow delete: if isAuthenticated() && isValidUser();
+    }
+
+    // Team member photos
+    match /team/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAuthenticated() && isValidUser() && isValidImage();
+      allow delete: if isAuthenticated() && isValidUser();
+    }
+
+    // Gallery images
+    match /gallery/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAuthenticated() && isValidUser() && isValidImage();
+      allow delete: if isAuthenticated() && isValidUser();
+    }
+
+    // Homepage images
+    match /homepage/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAuthenticated() && isValidUser() && isValidImage();
+      allow delete: if isAuthenticated() && isValidUser();
+    }
+
+    // General uploads (fallback)
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isValidUser();
+      allow delete: if isAuthenticated() && isValidUser();
+    }
+  }
+}

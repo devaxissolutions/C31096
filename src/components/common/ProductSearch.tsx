@@ -2,50 +2,40 @@ import { useState } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { Button } from '../ui/button';
+import { useProducts } from '../../hooks/useFirestoreCollection';
+import { firestoreToRegular } from '../../lib/typeConverters';
 
 interface ProductSearchProps {
   onProductClick: (productId: string) => void;
   onViewAll: () => void;
 }
 
-const MOCK_PRODUCTS = [
-  {
-    id: 'prod-1',
-    name: 'Amoxicillin 500mg',
-    indication: 'Bacterial infections',
-    dosage: 'Capsules',
-    image: 'https://images.unsplash.com/photo-1616526629520-109a2e4c813f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaGFybWFjZXV0aWNhbCUyMHByb2R1Y3QlMjBwYWNrYWdpbmd8ZW58MXx8fHwxNzYwNjQ2ODk0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  },
-  {
-    id: 'prod-2',
-    name: 'Metformin 850mg',
-    indication: 'Type 2 diabetes',
-    dosage: 'Tablets',
-    image: 'https://images.unsplash.com/photo-1616526629520-109a2e4c813f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaGFybWFjZXV0aWNhbCUyMHByb2R1Y3QlMjBwYWNrYWdpbmd8ZW58MXx8fHwxNzYwNjQ2ODk0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  },
-  {
-    id: 'prod-3',
-    name: 'Omeprazole 20mg',
-    indication: 'Gastric acid reduction',
-    dosage: 'Capsules',
-    image: 'https://images.unsplash.com/photo-1616526629520-109a2e4c813f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaGFybWFjZXV0aWNhbCUyMHByb2R1Y3QlMjBwYWNrYWdpbmd8ZW58MXx8fHwxNzYwNjQ2ODk0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  },
-];
-
-const SUGGESTIONS = [
-  'Amoxicillin',
-  'Metformin',
-  'Omeprazole',
-  'Paracetamol',
-  'Ibuprofen',
-];
-
 export function ProductSearch({ onProductClick, onViewAll }: ProductSearchProps) {
+  const { data: firestoreProducts, loading } = useProducts({ filters: [{ field: 'isActive', operator: '==', value: true }] });
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredSuggestions = SUGGESTIONS.filter((s) =>
+  // Convert Firestore products to display format
+  const products = firestoreProducts
+    .map(firestoreToRegular)
+    .filter(product => product.isActive)
+    .map(product => ({
+      id: product.id,
+      name: product.name,
+      indication: product.description || 'Pharmaceutical product',
+      dosage: product.category || 'Various forms',
+      image: product.images?.[0] || '/images/product-placeholder.jpg',
+    }));
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.indication.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Generate suggestions from product names
+  const suggestions = products.map(p => p.name);
+  const filteredSuggestions = suggestions.filter((s) =>
     s.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -119,13 +109,21 @@ export function ProductSearch({ onProductClick, onViewAll }: ProductSearchProps)
 
           {/* Product Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-            {MOCK_PRODUCTS.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={() => onProductClick(product.id)}
-              />
-            ))}
+            {loading ? (
+              <div className="col-span-full text-center py-8">Loading products...</div>
+            ) : filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onClick={() => onProductClick(product.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-[var(--text-900)] opacity-70">
+                No products found matching your search.
+              </div>
+            )}
           </div>
 
           {/* View All Button */}
