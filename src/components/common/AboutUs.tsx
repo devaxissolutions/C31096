@@ -29,7 +29,7 @@ export function AboutUs() {
     {
       year: '1998',
       title: 'Foundation',
-      description: 'EDIF Pharma established with vision to improve global healthcare access',
+      description: 'PharmaCorp established with vision to improve global healthcare access',
     },
     {
       year: '2005',
@@ -103,7 +103,7 @@ export function AboutUs() {
             <span className="text-sm text-[var(--brand-blue)]">Company Overview</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-[var(--brand-blue)] mb-6">
-            About EDIF Pharma
+            About PharmaCorp
           </h2>
           <p className="text-lg text-[var(--text-900)] opacity-70 max-w-3xl mx-auto leading-relaxed">
             A global pharmaceutical leader committed to improving healthcare access through 
