@@ -345,7 +345,7 @@ export function InvestorsSection() {
             <div>
               <h3 className="text-2xl mb-3">Stock Information</h3>
               <p className="text-white/80 mb-6 leading-relaxed">
-                EDIF Pharma is listed on BSE and NSE. Get real-time stock quotes, 
+                PharmaCorp is listed on BSE and NSE. Get real-time stock quotes, 
                 historical data, and analyst coverage.
               </p>
               <div className="grid grid-cols-2 gap-4">
@@ -355,7 +355,7 @@ export function InvestorsSection() {
                 </div>
                 <div>
                   <div className="text-sm text-white/60 mb-1">NSE Symbol</div>
-                  <div className="text-lg">EDIFPHARMA</div>
+                  <div className="text-lg">PHARMACORP</div>
                 </div>
               </div>
             </div>
@@ -395,7 +395,7 @@ export function InvestorsSection() {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-[var(--text-900)] opacity-60">
                   <span>Email:</span>
-                  <span className="text-[var(--brand-blue)]">investors@edifpharma.com</span>
+                  <span className="text-[var(--brand-blue)]">investors@pharmacorp.com</span>
                 </div>
                 <div className="flex items-center gap-2 text-[var(--text-900)] opacity-60">
                   <span>Phone:</span>
