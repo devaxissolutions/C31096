@@ -51,26 +51,44 @@ export class FirebaseAuthService {
    * Sign in with email and password
    */
   async signIn(credentials: LoginCredentials): Promise<AuthResult> {
-    console.log('FirebaseAuth.signIn called with:', credentials);
-    console.log('Credentials types:', {
-      email: typeof credentials.email,
-      password: typeof credentials.password,
-    });
+    console.log('FirebaseAuth.signIn called');
+    console.log('Firebase Auth instance:', this.auth ? 'initialized' : 'NOT initialized');
 
     try {
+      console.log('Attempting to sign in with Firebase...');
       const userCredential = await signInWithEmailAndPassword(
         this.auth,
         credentials.email,
         credentials.password
       );
 
+      console.log('Firebase sign in successful, user ID:', userCredential.user.uid);
+
       // Update last login in Firestore (only if document exists and user has permission)
       try {
         console.log('Attempting to update last login timestamp...');
-        await updateDoc(doc(this.db, 'users', userCredential.user.uid), {
-          lastLogin: serverTimestamp(),
-        });
-        console.log('Last login timestamp updated successfully');
+        const userDocRef = doc(this.db, 'users', userCredential.user.uid);
+        
+        // First check if document exists
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          await updateDoc(userDocRef, {
+            lastLogin: serverTimestamp(),
+          });
+          console.log('Last login timestamp updated successfully');
+        } else {
+          console.warn('User document does not exist in Firestore, creating basic document');
+          // Create a basic user document
+          await setDoc(userDocRef, {
+            email: userCredential.user.email,
+            name: userCredential.user.displayName || 'User',
+            role: 'viewer',
+            createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp(),
+          });
+          console.log('User document created successfully');
+        }
       } catch (firestoreError: any) {
         console.warn('Could not update last login in Firestore:', firestoreError.message);
         // Check if it's a permission issue
@@ -82,12 +100,15 @@ export class FirebaseAuthService {
 
       const user = await this.firebaseUserToUser(userCredential.user);
 
+      console.log('User data converted successfully');
       return {
         success: true,
         user,
       };
     } catch (error: any) {
       console.error('FirebaseAuth.signIn error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       return {
         success: false,
         error: this.getAuthErrorMessage(error.code),
@@ -175,7 +196,21 @@ export class FirebaseAuthService {
    * Listen to auth state changes
    */
   onAuthStateChange(callback: (user: FirebaseUser | null) => void) {
-    return onAuthStateChanged(this.auth, callback);
+    console.log('Setting up onAuthStateChanged listener');
+    const unsubscribe = onAuthStateChanged(this.auth, (user) => {
+      console.log('onAuthStateChanged triggered:', user ? `User: ${user.email}` : 'No user');
+      callback(user);
+    }, (error) => {
+      console.error('Auth state change error:', error);
+    });
+    return unsubscribe;
+  }
+
+  /**
+   * Get current user synchronously
+   */
+  getCurrentUser(): FirebaseUser | null {
+    return this.auth.currentUser;
   }
 
   /**
@@ -304,8 +339,15 @@ export class FirebaseAuthService {
         return 'Too many failed attempts. Please try again later.';
       case 'auth/network-request-failed':
         return 'Network error. Please check your connection.';
+      case 'auth/invalid-credential':
+        return 'Invalid email or password. Please check your credentials.';
+      case 'auth/invalid-login-credentials':
+        return 'Invalid email or password. Please try again.';
+      case 'auth/missing-password':
+        return 'Please enter your password.';
       default:
-        return 'An unexpected error occurred. Please try again.';
+        console.error('Unhandled auth error code:', errorCode);
+        return 'Login failed. Please check your credentials and try again.';
     }
   }
 }

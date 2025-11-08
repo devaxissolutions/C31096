@@ -23,7 +23,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState<string>('');
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -39,6 +39,14 @@ export const LoginPage: React.FC = () => {
       password: '',
     },
   });
+
+  // Redirect to dashboard if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      console.log('User already authenticated, redirecting to dashboard');
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Ensure form is properly initialized
   React.useEffect(() => {
@@ -70,14 +78,20 @@ export const LoginPage: React.FC = () => {
         return;
       }
 
-      // Call login with validated data
+      console.log('Starting login process...');
+
+      // Call login with validated data and wait for completion
       await login({
         email: trimmedEmail,
         password: trimmedPassword,
       });
 
+      // Login successful - the auth state change will trigger navigation
+      console.log('Login successful, auth state will update...');
       toast.success('Login successful! Redirecting to dashboard...');
-      navigate('/admin/dashboard');
+      
+      // Navigate to dashboard after successful login
+      navigate('/admin/dashboard', { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during login.';

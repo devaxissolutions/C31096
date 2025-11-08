@@ -16,15 +16,27 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
+  console.log('ProtectedRoute render:', { 
+    isAuthenticated, 
+    isLoading, 
+    user: user?.email,
+    path: location.pathname 
+  });
+
   if (isLoading) {
+    console.log('ProtectedRoute: Still loading auth state...');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-slate-600">Verifying authentication...</p>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
@@ -48,5 +60,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  console.log('User authenticated, rendering protected content');
   return <>{children}</>;
 };

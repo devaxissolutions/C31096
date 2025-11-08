@@ -35,23 +35,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Listen to auth state changes
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
-    const unsubscribe = firebaseAuth.onAuthStateChange(async (firebaseUser: FirebaseUser | null) => {
-      console.log('Auth state changed:', firebaseUser ? 'authenticated' : 'not authenticated');
-
-      if (!isMounted) return;
-
-      if (firebaseUser) {
+    console.log('Setting up auth state listener');
+    
+    // Check for existing auth state immediately
+    const checkCurrentUser = async () => {
+      const currentUser = firebaseAuth.getCurrentUser();
+      if (currentUser && isMounted) {
+        console.log('Found existing authenticated user:', currentUser.email);
         try {
-          console.log('Fetching user data from Firestore for:', firebaseUser.uid);
-          const user = await firebaseAuth.getUserFromFirebaseUser(firebaseUser);
-          console.log('User data fetched successfully:', user);
+          const user = await firebaseAuth.getUserFromFirebaseUser(currentUser);
           if (isMounted) {
             setAuthState({
               user,
               isAuthenticated: true,
               isLoading: false,
             });
+            console.log('Initial auth state set from existing user');
+          }
+        } catch (error) {
+          console.error('Error loading existing user data:', error);
+          // Continue to auth state listener
+        }
+      }
+    };
+    
+    checkCurrentUser();
+    
+    const unsubscribe = firebaseAuth.onAuthStateChange(async (firebaseUser: FirebaseUser | null) => {
+      console.log('Auth state changed:', firebaseUser ? `authenticated (${firebaseUser.email})` : 'not authenticated');
+
+      if (!isMounted) {
+        console.log('Component unmounted, skipping state update');
+        return;
+      }
+
+      // Clear any existing timeout since we got a response
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      if (firebaseUser) {
+        try {
+          console.log('Fetching user data from Firestore for:', firebaseUser.uid);
+          const user = await firebaseAuth.getUserFromFirebaseUser(firebaseUser);
+          console.log('User data fetched successfully:', { email: user.email, role: user.role });
+          if (isMounted) {
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            console.log('Auth state updated: authenticated');
           }
         } catch (error) {
           console.error('Error loading user data from Firestore:', error);
@@ -71,6 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               isAuthenticated: true,
               isLoading: false,
             });
+            console.log('Auth state updated with fallback user data');
           }
         }
       } else {
@@ -81,14 +118,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             isAuthenticated: false,
             isLoading: false,
           });
+          console.log('Auth state updated: not authenticated');
         }
       }
     });
 
-    // Safety timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      if (isMounted && authState.isLoading) {
-        console.warn('Auth state loading timeout reached, setting to not authenticated');
+    // Safety timeout to prevent infinite loading - only set once on mount
+    timeoutId = setTimeout(() => {
+      if (isMounted) {
+        console.warn('Auth state loading timeout reached after 10s, setting to not authenticated');
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -99,11 +137,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => {
       isMounted = false;
-      console.log('Unsubscribing from auth state changes');
-      clearTimeout(timeout);
+      console.log('Cleaning up auth state listener');
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       unsubscribe();
     };
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
 
   // Login with Firebase Auth
   const login = async (credentials: LoginForm): Promise<void> => {
@@ -126,11 +166,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await firebaseAuth.signIn(credentials);
 
       if (!result.success) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
         throw new Error(result.error || 'Login failed');
       }
 
-      // Don't manually set auth state here - let onAuthStateChanged handle it
-      console.log('Login successful, waiting for auth state change...');
+      // Auth state will be updated by onAuthStateChanged listener
+      console.log('Login successful, auth state change will be triggered');
+      
+      // Wait a moment for the auth state listener to update
+      await new Promise(resolve => setTimeout(resolve, 100));
 
     } catch (error) {
       console.error('Auth hook login error:', error);
