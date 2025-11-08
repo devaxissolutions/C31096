@@ -1,156 +1,343 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Badge } from '../../components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { Label } from '../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { UserPlus, Search, Edit, Trash2, Shield, User, Activity, Mail, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Shield,
+  User,
+  Mail,
+  Calendar,
+  Loader2,
+  UserPlus,
+  Activity,
+} from 'lucide-react';
 
-const users = [
-  {
-    id: '1',
-    name: 'Dr. Sarah Johnson',
-    email: 'sarah.johnson@pharmacorp.com',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: '2024-01-20 14:30',
-    avatar: '/avatars/sarah.jpg',
-    permissions: ['read', 'write', 'delete', 'admin'],
-    department: 'Quality Assurance'
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    email: 'michael.chen@pharmacorp.com',
-    role: 'Editor',
-    status: 'Active',
-    lastLogin: '2024-01-19 09:15',
-    avatar: '/avatars/michael.jpg',
-    permissions: ['read', 'write'],
-    department: 'Content Management'
-  },
-  {
-    id: '3',
-    name: 'Lisa Rodriguez',
-    email: 'lisa.rodriguez@pharmacorp.com',
-    role: 'Editor',
-    status: 'Inactive',
-    lastLogin: '2024-01-10 16:45',
-    avatar: '/avatars/lisa.jpg',
-    permissions: ['read', 'write'],
-    department: 'Marketing'
-  }
-];
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const roles = [
-  { value: 'admin', label: 'Admin', permissions: ['read', 'write', 'delete', 'admin'] },
-  { value: 'editor', label: 'Editor', permissions: ['read', 'write'] },
-  { value: 'viewer', label: 'Viewer', permissions: ['read'] }
-];
+import { useAuth } from '../hooks/use-auth';
+import { usersService, FirestoreUser } from '../../lib/firebaseUtils';
+import { toast } from 'sonner';
 
-export default function Users() {
-  const [searchTerm, setSearchTerm] = useState('');
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  role: z.enum(['admin', 'editor', 'viewer']),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const editUserSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  role: z.enum(['admin', 'editor', 'viewer']),
+});
+
+type CreateUserForm = z.infer<typeof createUserSchema>;
+type EditUserForm = z.infer<typeof editUserSchema>;
+
+export const Users: React.FC = () => {
+  const { register: registerUser, user: currentUser } = useAuth();
+  const [users, setUsers] = useState<FirestoreUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<FirestoreUser | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedRole === 'all' || user.role.toLowerCase() === selectedRole) &&
-    (selectedStatus === 'all' || user.status === selectedStatus)
-  );
+  const createForm = useForm<CreateUserForm>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      role: 'viewer',
+    },
+  });
 
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'Admin':
-        return <Badge className="bg-red-100 text-red-800"><Shield className="w-3 h-3 mr-1" />Admin</Badge>;
-      case 'Editor':
-        return <Badge className="bg-blue-100 text-blue-800"><Edit className="w-3 h-3 mr-1" />Editor</Badge>;
-      case 'Viewer':
-        return <Badge className="bg-gray-100 text-gray-800"><User className="w-3 h-3 mr-1" />Viewer</Badge>;
-      default:
-        return <Badge variant="secondary">{role}</Badge>;
+  const editForm = useForm<EditUserForm>({
+    resolver: zodResolver(editUserSchema),
+  });
+
+  // Load users
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const allUsers = await usersService.getAll();
+      setUsers(allUsers);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    return status === 'Active'
-      ? <Badge className="bg-green-100 text-green-800">Active</Badge>
-      : <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>;
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // Create user
+  const onCreateUser = async (data: CreateUserForm) => {
+    if (!currentUser) return;
+
+    try {
+      setIsSubmitting(true);
+      await registerUser(data.email, data.password, data.name, data.role);
+
+      toast.success('User created successfully');
+      setIsCreateDialogOpen(false);
+      createForm.reset();
+      loadUsers();
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast.error(error.message || 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Edit user
+  const onEditUser = async (data: EditUserForm) => {
+    if (!editingUser) return;
+
+    try {
+      setIsSubmitting(true);
+      await usersService.update(editingUser.id, {
+        name: data.name,
+        role: data.role,
+        updatedBy: currentUser?.id || '',
+      });
+
+      toast.success('User updated successfully');
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+      editForm.reset();
+      loadUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('Failed to update user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Delete user
+  const onDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      await usersService.delete(userId);
+      toast.success('User deleted successfully');
+      loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    }
+  };
+
+  // Open edit dialog
+  const openEditDialog = (user: FirestoreUser) => {
+    setEditingUser(user);
+    editForm.reset({
+      name: user.name,
+      role: user.role,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  // Filter users based on search and filters
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.role.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+    const matchesStatus = selectedStatus === 'all' ||
+                         (selectedStatus === 'active' && user.isActive) ||
+                         (selectedStatus === 'inactive' && !user.isActive);
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'destructive';
+      case 'editor':
+        return 'default';
+      case 'viewer':
+        return 'secondary';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return <Shield className="h-3 w-3" />;
+      case 'editor':
+        return <Edit className="h-3 w-3" />;
+      case 'viewer':
+        return <User className="h-3 w-3" />;
+      default:
+        return <User className="h-3 w-3" />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600">Manage admins, editors, permissions, and activity logs.</p>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">
+            Manage admin users and their permissions
+          </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add User
-          </Button>
-          <DialogContent className="sm:max-w-[500px]">
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
-                Create a new user account with appropriate permissions.
+                Add a new user to the admin system with appropriate permissions.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="first-name">First Name</Label>
-                  <Input id="first-name" placeholder="John" />
-                </div>
-                <div>
-                  <Label htmlFor="last-name">Last Name</Label>
-                  <Input id="last-name" placeholder="Doe" />
-                </div>
+            <form onSubmit={createForm.handleSubmit(onCreateUser)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="create-email">Email</Label>
+                <Input
+                  id="create-email"
+                  type="email"
+                  placeholder="user@pharmacorp.com"
+                  {...createForm.register('email')}
+                />
+                {createForm.formState.errors.email && (
+                  <p className="text-sm text-red-500">
+                    {createForm.formState.errors.email.message}
+                  </p>
+                )}
               </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="john.doe@pharmacorp.com" />
+              <div className="space-y-2">
+                <Label htmlFor="create-name">Full Name</Label>
+                <Input
+                  id="create-name"
+                  placeholder="John Doe"
+                  {...createForm.register('name')}
+                />
+                {createForm.formState.errors.name && (
+                  <p className="text-sm text-red-500">
+                    {createForm.formState.errors.name.message}
+                  </p>
+                )}
               </div>
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select>
+              <div className="space-y-2">
+                <Label htmlFor="create-role">Role</Label>
+                <Select
+                  value={createForm.watch('role')}
+                  onValueChange={(value) => createForm.setValue('role', value as any)}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map(role => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="viewer">Viewer</SelectItem>
+                    <SelectItem value="editor">Editor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
+                {createForm.formState.errors.role && (
+                  <p className="text-sm text-red-500">
+                    {createForm.formState.errors.role.message}
+                  </p>
+                )}
               </div>
-              <div>
-                <Label htmlFor="department">Department</Label>
-                <Input id="department" placeholder="e.g., Quality Assurance" />
+              <div className="space-y-2">
+                <Label htmlFor="create-password">Password</Label>
+                <Input
+                  id="create-password"
+                  type="password"
+                  placeholder="Minimum 6 characters"
+                  {...createForm.register('password')}
+                />
+                {createForm.formState.errors.password && (
+                  <p className="text-sm text-red-500">
+                    {createForm.formState.errors.password.message}
+                  </p>
+                )}
               </div>
-              <div>
-                <Label htmlFor="phone">Phone (Optional)</Label>
-                <Input id="phone" placeholder="+1 (555) 123-4567" />
-              </div>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>
-                Create User
-              </Button>
-            </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Create User
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -163,7 +350,7 @@ export default function Users() {
               <User className="h-8 w-8 text-blue-600" />
               <div>
                 <p className="text-2xl font-bold">{users.length}</p>
-                <p className="text-sm text-gray-600">Total Users</p>
+                <p className="text-sm text-muted-foreground">Total Users</p>
               </div>
             </div>
           </CardContent>
@@ -173,8 +360,8 @@ export default function Users() {
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-red-600" />
               <div>
-                <p className="text-2xl font-bold">{users.filter(u => u.role === 'Admin').length}</p>
-                <p className="text-sm text-gray-600">Admins</p>
+                <p className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>
+                <p className="text-sm text-muted-foreground">Admins</p>
               </div>
             </div>
           </CardContent>
@@ -184,8 +371,8 @@ export default function Users() {
             <div className="flex items-center space-x-2">
               <Edit className="h-8 w-8 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">{users.filter(u => u.role === 'Editor').length}</p>
-                <p className="text-sm text-gray-600">Editors</p>
+                <p className="text-2xl font-bold">{users.filter(u => u.role === 'editor').length}</p>
+                <p className="text-sm text-muted-foreground">Editors</p>
               </div>
             </div>
           </CardContent>
@@ -195,8 +382,8 @@ export default function Users() {
             <div className="flex items-center space-x-2">
               <Activity className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">{users.filter(u => u.status === 'Active').length}</p>
-                <p className="text-sm text-gray-600">Active Users</p>
+                <p className="text-2xl font-bold">{users.filter(u => u.isActive).length}</p>
+                <p className="text-sm text-muted-foreground">Active Users</p>
               </div>
             </div>
           </CardContent>
@@ -209,11 +396,11 @@ export default function Users() {
           <div className="flex space-x-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -235,8 +422,8 @@ export default function Users() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -247,100 +434,167 @@ export default function Users() {
       <Card>
         <CardHeader>
           <CardTitle>Users ({filteredUsers.length})</CardTitle>
-          <CardDescription>Manage user accounts and permissions</CardDescription>
+          <CardDescription>
+            All registered admin users and their roles
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-gray-600">{user.email}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getRoleBadge(user.role)}</TableCell>
-                  <TableCell>{user.department}</TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell className="text-sm text-gray-600">{user.lastLogin}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-8">
+              <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No users found</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Login</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.avatar} alt={user.name} />
+                          <AvatarFallback>
+                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{user.name}</div>
+                          <div className="text-sm text-muted-foreground flex items-center">
+                            <Mail className="h-3 w-3 mr-1" />
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getRoleBadgeVariant(user.role)} className="flex items-center w-fit">
+                        {getRoleIcon(user.role)}
+                        <span className="ml-1 capitalize">{user.role}</span>
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={user.isActive ? 'default' : 'secondary'}>
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.lastLogin ? (
+                        <div className="text-sm flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {user.lastLogin.toDate().toLocaleDateString()}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">Never</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {user.createdAt.toDate().toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => onDeleteUser(user.id)}
+                            className="text-red-600"
+                            disabled={user.id === currentUser?.id}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Activity Log */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest user actions and system events</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <UserPlus className="h-4 w-4 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">New user account created</p>
-                <p className="text-sm text-gray-600">Sarah Johnson created an account for Michael Chen</p>
-              </div>
-              <span className="text-sm text-gray-500">2 hours ago</span>
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update user information and permissions.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={editForm.handleSubmit(onEditUser)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="John Doe"
+                {...editForm.register('name')}
+              />
+              {editForm.formState.errors.name && (
+                <p className="text-sm text-red-500">
+                  {editForm.formState.errors.name.message}
+                </p>
+              )}
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <Edit className="h-4 w-4 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Product updated</p>
-                <p className="text-sm text-gray-600">Lisa Rodriguez updated PC-Cardio Plus product information</p>
-              </div>
-              <span className="text-sm text-gray-500">4 hours ago</span>
+            <div className="space-y-2">
+              <Label htmlFor="edit-role">Role</Label>
+              <Select
+                value={editForm.watch('role')}
+                onValueChange={(value) => editForm.setValue('role', value as any)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                  <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              {editForm.formState.errors.role && (
+                <p className="text-sm text-red-500">
+                  {editForm.formState.errors.role.message}
+                </p>
+              )}
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Certificate deleted</p>
-                <p className="text-sm text-gray-600">Michael Chen deleted expired ISO certificate</p>
-              </div>
-              <span className="text-sm text-gray-500">1 day ago</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Update User
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
+};
+
+export default Users;
