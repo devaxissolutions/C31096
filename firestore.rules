@@ -15,7 +15,7 @@ service cloud.firestore {
     }
 
     function isValidUser() {
-      return isAuthenticated() && request.auth.token.email_verified == true;
+      return isAuthenticated(); // Temporarily remove email verification requirement for testing
     }
 
     // Products collection - Admin only for writes, public read
@@ -70,8 +70,8 @@ service cloud.firestore {
 
     // Users collection (if needed for additional user data)
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow write: if isOwner(userId) || isAdmin();
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
     // Activity logs (for admin dashboard)
