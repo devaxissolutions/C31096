@@ -8,6 +8,7 @@ import { LoginPage } from '../pages/LoginPage';
 // Lazy load admin pages
 const DashboardPage = lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })));
 const ProductsPage = lazy(() => import('../pages/ProductsPage').then(module => ({ default: module.ProductsPage })));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage').then(module => ({ default: module.ForgotPasswordPage })));
 
 // Loading component
 const PageLoader: React.FC = () => (
@@ -42,6 +43,16 @@ export const AdminRouter: React.FC = () => {
     <Routes>
       {/* Login route */}
       <Route path="login" element={<LoginPage />} />
+
+      {/* Forgot password route */}
+      <Route
+        path="forgot-password"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <ForgotPasswordPage />
+          </Suspense>
+        }
+      />
 
       {/* Root admin route - redirect to login if not authenticated */}
       <Route
