@@ -26,6 +26,9 @@ build/
 *.swp
 *.swo
 *~
+docs/
+guidelines/
+scripts/
 
 # OS generated files
 .DS_Store
