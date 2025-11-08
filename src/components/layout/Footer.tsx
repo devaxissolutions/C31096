@@ -152,7 +152,7 @@ export function Footer({ onNavigate }: FooterProps) {
         {/* Bottom Bar */}
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/60">
-            <p>            <p>© 2025 PharmaCorp. All rights reserved.</p></p>
+            <p>© 2025 PharmaCorp. All rights reserved.</p>
             <p className="text-xs">
               This website is intended for healthcare professionals and authorized distributors.
             </p>
